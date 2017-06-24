@@ -1,0 +1,43 @@
+PROBLEM NAME: Beam 2D
+
+DISCRETIZATION
+Mesh Input File: \Users\marioju\Documentos\Work\testBeam.msh
+Output Filename: \\Client\C$\Users\marioju\Documentos\Work\
+Direction Set Association: 2
+2 dir1
+3 dir2
+Material Set Association: 1
+1 mat1
+Side Set Association: 1
+4 load1
+Dirichlet BCs: 12
+0.0 0.0 0.0 D X 0.0
+0.0 0.0 0.0 D Y 0.0
+0.0 0.0 0.0 D Z 0.0
+0.0 0.0 0.0 R X 0.0
+0.0 0.0 0.0 R Y 0.0
+0.0 0.0 0.0 R Z 0.0
+9.0 0.0 3.0 D X 0.0
+9.0 0.0 3.0 D Y 0.0
+9.0 0.0 3.0 D Z 0.0
+9.0 0.0 3.0 R X 0.0
+9.0 0.0 3.0 R Y 0.0
+9.0 0.0 3.0 R Z 0.0
+Point Load: 2
+6.0 3.0 0.0 F Y -60e3
+6.0 3.0 0.0 M Z -180e3
+Beam Direction: 2
+dir1 -1 0 0
+dir2 0 1 0
+Distributed load:
+DL on SS load1 for face 1: 40e3
+
+MATERIAL PROPERTIES 1
+Name: mat1
+Elastic modulus: 200e9
+Shear modulus: 80e9
+Area: 0.01
+Moment of Inertia 1: 0.001
+Moment of Inertia 2: 0.001
+
+
