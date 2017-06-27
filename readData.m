@@ -14,7 +14,7 @@ end
 % get mesh input file
 tline = fgetl(fileID);
 tmp = strsplit(tline);
-len = length(tmp); 
+len = length(tmp);
 if len > 4
     % concatenate name
     for i=4:len-1
@@ -23,12 +23,12 @@ if len > 4
         mshfile = strcat(mshfile,{' '},s1);
     end
 else
-   mshfile = tmp{4}; 
+    mshfile = tmp{4};
 end
 % get output file location
 tline = fgetl(fileID);
 tmp = strsplit(tline);
-len = length(tmp); 
+len = length(tmp);
 if len > 3
     % concatenate name
     for i=3:len-1
@@ -37,27 +37,29 @@ if len > 3
         outfile = strcat(outfile,{' '},s1);
     end
 else
-   outfile = tmp{3}; 
+    outfile = tmp{3};
 end
 % get direction set association
 tline = fgetl(fileID);
 tmp = strsplit(tline);
 nds = str2double(tmp(4)); % number of direction sets to read
-dirSet = cell(nds,2);
+keySet = cell(1,nds);
+valueSet = zeros(1,nds);
 if nds == 0
     fgetl(fileID); % dummy line
 else
     for i=1:nds
         tline = fgetl(fileID);
         tmp = strsplit(tline);
-        phyN = str2double(tmp(1)); % physical entity number
-        dirSet(i,:) = {phyN, tmp{2}};
+        keySet(i) = tmp(2);
+        valueSet(i) = str2double(tmp(1)); % physical entity number
     end
 end
+dirSet = containers.Map(keySet,valueSet);
 % get material set association
 tline = fgetl(fileID);
 tmp = strsplit(tline);
-nms = str2double(tmp(4)); % number of material sets to read 
+nms = str2double(tmp(4)); % number of material sets to read
 keySet = cell(1,nms);
 valueSet = zeros(1,nms);
 if nms == 0
@@ -82,8 +84,8 @@ else
     for i=1:nss
         tline = fgetl(fileID);
         tmp = strsplit(tline);
-        phyN = str2double(tmp(1)); % physical entity number
-        sideSet(i,:) = {phyN, tmp{2}};
+        keySet = str2double(tmp(1)); % physical entity number
+        sideSet(i,:) = {keySet, tmp{2}};
     end
 end
 % read Dirichlet BCs (may be displacements or rotations)
@@ -154,25 +156,25 @@ end
 tline = fgetl(fileID);
 tmp = strsplit(tline);
 nbds = str2double(tmp(3)); % number of beam directions to read
-BDSet = cell(nbds,4);
-for i=1:nbds
-    tline = fgetl(fileID);
-    tmp = strsplit(tline);
-    name = tmp{1};
-    vec = str2double(tmp(2:4));
-    BDSet(i,:) = {name, vec(1), vec(2), vec(3)};
-    % check that association is correct (input file only)
-    found = false;
-    for j=1:nds
-        if strcmp(name,dirSet{j,2})
-            found = true;
-            break;
+nameKey = zeros(1,nbds);
+valueSet = cell(1,nbds);
+if nbds == 0
+    fgetl(fileID); % dummy line
+else
+    for i=1:nbds
+        tline = fgetl(fileID);
+        tmp = strsplit(tline);
+        name = tmp{1};
+        if ~isKey(dirSet,name)
+            error('Verify direction set association, name not found')
         end
-    end
-    if ~found
-        error('Verify direction set association, name not found')
+        nameKey(i) = dirSet(name);
+        vec = str2double(tmp(2:4)); % unit vector - direction
+        valueSet(i) = {vec};
     end
 end
+BDSet = containers.Map(nameKey,valueSet);
+
 % read distributed load
 tline = fgetl(fileID);
 tmp = strsplit(tline);
@@ -252,6 +254,6 @@ MAT = containers.Map(nameKey,propKey);
 fclose(fileID);
 
 % read mesh
-readmesh(mshfile)
+%readmesh(mshfile)
 
 end
