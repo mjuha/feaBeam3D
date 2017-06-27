@@ -77,17 +77,19 @@ matSet = containers.Map(keySet,valueSet);
 tline = fgetl(fileID);
 tmp = strsplit(tline);
 nss = str2double(tmp(4)); % number of side sets to read
-sideSet = cell(nss,2);
+keySet = cell(1,nss);
+valueSet = zeros(1,nss);
 if nss == 0
     fgetl(fileID); % dummy line
 else
     for i=1:nss
         tline = fgetl(fileID);
         tmp = strsplit(tline);
-        keySet = str2double(tmp(1)); % physical entity number
-        sideSet(i,:) = {keySet, tmp{2}};
+        keySet(i) = tmp(2); % physical entity name
+        valueSet(i) = str2double(tmp(1)); % physical entity number
     end
 end
+sideSet = containers.Map(keySet,valueSet);
 % read Dirichlet BCs (may be displacements or rotations)
 tline = fgetl(fileID);
 tmp = strsplit(tline);
@@ -179,7 +181,8 @@ BDSet = containers.Map(nameKey,valueSet);
 tline = fgetl(fileID);
 tmp = strsplit(tline);
 nnbc = str2double(tmp(3)); % number of NBC to read
-NBCSet = cell(nnbc,3);
+nameKey = zeros(1,nnbc);
+valueSet = cell(1,nnbc);
 if nnbc == 0
     fgetl(fileID); %dummy line
 else
@@ -196,20 +199,12 @@ else
             error('Face must be 1 or 2, please check')
         end
         value = str2double(tmp(9)); % value to assign
-        NBCSet(i,:) = {name, face, value};
-        % check that association is correct (input file only)
-        found = false;
-        for j=1:nss
-            if strcmp(name,sideSet{j,2})
-                found = true;
-                break;
-            end
-        end
-        if ~found
-            error('Verify side set association, name not found')
-        end
+        nameKey(i) = sideSet(name);
+        vec = [face value];
+        valueSet(i) = {vec};
     end
 end
+NBCSet = containers.Map(nameKey,valueSet);
 % Read material properties
 % get next line and discard it
 fgetl(fileID);
