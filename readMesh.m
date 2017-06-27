@@ -1,6 +1,6 @@
 function readMesh(mshfile)
 
-global coordinates elements nn nel pointNode
+global coordinates elements nn nel pointNode MAT BDSet
 
 % ====================
 % Open msh file
