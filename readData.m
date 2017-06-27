@@ -1,8 +1,7 @@
 function [outfile] = readData(filename)
 
 % global variables
-global coordinates elements nn nel pointNode MAT DBCSet PFCSet
-global BDSet NBCSet
+global MAT DBCSet PFCSet BDSet NBCSet
 
 % Open file
 fileID = fopen(filename,'r');
@@ -58,18 +57,20 @@ end
 % get material set association
 tline = fgetl(fileID);
 tmp = strsplit(tline);
-nms = str2double(tmp(4)); % number of material sets to read
-matSet = cell(nms,2);
+nms = str2double(tmp(4)); % number of material sets to read 
+keySet = cell(1,nms);
+valueSet = zeros(1,nms);
 if nms == 0
     fgetl(fileID); % dummy line
 else
     for i=1:nms
         tline = fgetl(fileID);
         tmp = strsplit(tline);
-        phyN = str2double(tmp(1)); % physical entity number
-        matSet(i,:) = {phyN, tmp{2}};
+        keySet(i) = tmp(2); % physical name
+        valueSet(i) = str2double(tmp(1)); % physical entity number
     end
 end
+matSet = containers.Map(keySet,valueSet);
 % get side set association
 tline = fgetl(fileID);
 tmp = strsplit(tline);
@@ -189,10 +190,10 @@ else
             error('DL must specify face, please check')
         end
         face = str2double(tmp(7)); % face
-        if (face ~= 1) || (face ~= 2)
+        if (face ~= 1) && (face ~= 2)
             error('Face must be 1 or 2, please check')
         end
-        value = str2double(tmp(8)); % value to assign
+        value = str2double(tmp(9)); % value to assign
         NBCSet(i,:) = {name, face, value};
         % check that association is correct (input file only)
         found = false;
@@ -207,114 +208,50 @@ else
         end
     end
 end
+% Read material properties
+% get next line and discard it
+fgetl(fileID);
+tline = fgetl(fileID);
+tmp = strsplit(tline);
+nmat = str2double(tmp(3)); % number of materials
+propKey = cell(1,nmat);
+nameKey = zeros(1,nmat);
+for i=1:nmat
+    tline = fgetl(fileID);
+    tmp = strsplit(tline);
+    name = tmp{2};
+    if ~isKey(matSet,name)
+        error('Verify material set association, name not found')
+    end
+    nameKey(i) = matSet(name);
+    % elastic modulus
+    tline = fgetl(fileID);
+    tmp = strsplit(tline);
+    E = str2double(tmp(3));
+    % Shear modulus
+    tline = fgetl(fileID);
+    tmp = strsplit(tline);
+    G = str2double(tmp(3));
+    % Area
+    tline = fgetl(fileID);
+    tmp = strsplit(tline);
+    A = str2double(tmp(2));
+    % Moment of inertia 1
+    tline = fgetl(fileID);
+    tmp = strsplit(tline);
+    I1 = str2double(tmp(5));
+    % Moment of inertia 2
+    tline = fgetl(fileID);
+    tmp = strsplit(tline);
+    I2 = str2double(tmp(5));
+    %
+    prop1 = [E G A I1 I2];
+    propKey(i) = {prop1};
+end
+MAT = containers.Map(nameKey,propKey);
+fclose(fileID);
 
-% 
-% %Read material properties
-% % get next line and discard it
-% fgetl(fileID);
-% tline = fgetl(fileID);
-% tmp = strsplit(tline);
-% nmat = str2double(tmp(3)); % number of materials
-% MAT = zeros(nmat,2);
-% 
-% for i=1:nmat
-%     tline = fgetl(fileID);
-%     tmp = strsplit(tline);
-%     MAT(i,1) = str2double(tmp(3)); % Elastic modulus
-%     tline = fgetl(fileID);
-%     tmp = strsplit(tline);
-%     MAT(i,2) = str2double(tmp(2)); % area
-% end
-% fclose(fileID);
-% 
-% % ====================
-% % Open msh file
-% % ====================
-% 
-% fileID = fopen(mshfile,'r');
-% 
-% % get first three lines and discard them
-% for i=1:3
-%     fgetl(fileID);
-% end
-% 
-% % Get physical names (mandatory)
-% tline = fgetl(fileID);
-% if ~strcmp(tline,'$PhysicalNames')
-%     error('Input data MUST declare PhysicalNames. Please check.');
-% end
-% % get number of names
-% nNames = str2double(fgetl(fileID));
-% % get names
-% phyNames = zeros(nNames,2);
-% % each row contains: physical-dimension physical-number
-% for i=1:nNames
-%     tline = fgetl(fileID);
-%     phyNames(i,:) = sscanf(tline,'%d %d %*s');
-% end
-% fgetl(fileID); % discard this line
-% % Read nodes
-% fgetl(fileID); % discard this line
-% tline = fgetl(fileID);
-% nn = str2double(tline);
-% %
-% coordinates = zeros(nn,3);
-% for i=1:nn
-%     tline = fgetl(fileID);
-%     coordinates(i,:) = sscanf(tline,'%*d %f %f %f');
-% end
-% fgetl(fileID); % discard this line
-% %
-% % read elements
-% fgetl(fileID); % discard this line
-% tline = fgetl(fileID);
-% nelT = str2double(tline);
-% elementsT = cell(nelT,1);
-% % count number of 1-node point
-% pointCount = 0;
-% % count number of 2-node line
-% lineCount = 0;
-% for i=1:nelT
-%     tline = fgetl(fileID);
-%     C = str2double(strsplit(tline));
-%     switch C(2)
-%         case 15
-%             pointCount = pointCount + 1;
-%         case 1
-%             lineCount = lineCount + 1;
-%         otherwise
-%             error('Unknown element type. Please check.')
-%     end
-%     elementsT(i) = {C};
-% end
-% %close file
-% fclose(fileID);
-% % post-process data
-% nel = lineCount;
-% elements = zeros(nel,3); % store number of physical entity, element tag
-% pointNode = zeros(pointCount,2);
-% %
-% % count number of 1-node point
-% pointCount = 0;
-% % count number of 2-node line
-% lineCount = 0;
-% for i=1:nelT
-%     % get array
-%     v = elementsT{i};
-%     switch v(2)
-%         case 15
-%             pointCount = pointCount + 1;
-%             pointNode(pointCount,1) = v(4);
-%             pointNode(pointCount,2) = v(6); 
-%         case 1
-%             lineCount = lineCount + 1;
-%             elements(lineCount,1) = v(4);
-%             elements(lineCount,2:3) = v(6:7);
-%         otherwise
-%             error('Unknown element type. Please check.')
-%     end
-% end
-% %
-clearvars elementsT
+% read mesh
+readmesh(mshfile)
 
 end
