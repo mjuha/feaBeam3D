@@ -1,6 +1,6 @@
 function readMesh(mshfile)
 
-global coordinates elements nn nel pointNode MAT BDSet
+global coordinates elements nn nel MAT BDSet sideLoad NBCSet
 
 % ====================
 % Open msh file
@@ -65,27 +65,67 @@ for i=1:nmat
 end
 
 nel = elementCount;
-elements = zeros(nel,3); % store number of physical entity, element tag
-pointNode = zeros(pointCount,2);
-%
-% count number of 1-node point
-pointCount = 0;
-% count number of 2-node line
-lineCount = 0;
-for i=1:nelT
-    % get array
-    v = elementsT{i};
-    switch v(2)
-        case 15
-            pointCount = pointCount + 1;
-            pointNode(pointCount,1) = v(4);
-            pointNode(pointCount,2) = v(6);
-        case 1
-            lineCount = lineCount + 1;
-            elements(lineCount,1) = v(4);
-            elements(lineCount,2:3) = v(6:7);
-        otherwise
-            error('Unknown element type. Please check.')
+elements = zeros(nel,4); % store number of physical entity, material number, etc
+
+% I do not know a better way to filter out the elements from gmsh.
+% I will loop several times over the element list. Not sure if the logic
+% below will work in general cases. Please check.
+
+% fill-in elements material number and conectivity
+elementCount = 0;
+for i=1:nmat
+    mkey = matKeys(i);
+    for j=1:nelT
+        matnum = elementsT(j,4); 
+        if matnum == mkey
+            elementCount = elementCount + 1;
+            elements(elementCount,1) = matnum;
+            elements(elementCount,3:4) = elementsT(j,6:7);
+        end
+    end
+end
+
+% fill-in direction
+dirKeys = cell2mat(keys(BDSet));
+ndir = length(dirKeys);
+elementCount = 0;
+for i=1:ndir
+    dkey = dirKeys(i);
+    for j=1:nelT
+        dirnum = elementsT(j,4); 
+        if dirnum == dkey
+            elementCount = elementCount + 1;
+            elements(elementCount,2) = dirnum;
+        end
+    end
+end
+
+% count the number of side loads in the domain (using NBCSet set)
+sideloadKeys = cell2mat(keys(NBCSet));
+nsl = length(sideloadKeys);
+count = 0;
+for i=1:nsl
+    for j=1:nelT
+        if elementsT(j,4) == sideloadKeys(i)
+            count = count + 1;
+        end
+    end
+end
+
+% fill-in sideLoad
+sideLoad = zeros(count,4);
+elementCount = 0;
+for i=1:nsl
+    slkey = sideloadKeys(i);
+    valueSet = cell2mat(NBCSet(slkey));
+    for j=1:nelT
+        slnum = elementsT(j,4); 
+        if slnum == slkey
+            elementCount = elementCount + 1;
+            sideLoad(elementCount,3) = valueSet(1);
+            sideLoad(elementCount,1:2) = elementsT(j,6:7);
+            sideLoad(elementCount,4) = valueSet(2);
+        end
     end
 end
 %

@@ -49,32 +49,33 @@ fprintf(fid,'ASCII\n');
 fprintf(fid, 'DATASET UNSTRUCTURED_GRID\n');
 fprintf(fid, '%s %d %s\n','POINTS ', nn, 'float');
 for i=1:nn
-    fprintf(fid, '%f  %f  %f\n', coordinates(i,1), coordinates(i,2), 0.0);
+    fprintf(fid, '%f  %f  %f\n', coordinates(i,1), coordinates(i,2), ...
+        coordinates(i,3));
 end
 fprintf(fid, '%s %d %d\n','CELLS ', nel, 3*nel);
 for i=1:nel
-    fprintf(fid, '%d %d %d %d\n',2, elements(i,2:3)-1);
+    fprintf(fid, '%d %d %d\n',2, elements(i,3:4)-1);
 end
 fprintf(fid, '%s %d\n','CELL_TYPES ', nel);
 for i=1:nel
     fprintf(fid, '%d\n', 3);
 end
-fprintf(fid, '%s %d\n', 'POINT_DATA ', nn);
-fprintf(fid, 'VECTORS DISP float\n');
-for i=1:nn
-    fprintf(fid, '%f %f %f\n',u(1,i),u(2,i),0.0);
-end 
-fprintf(fid, '%s %d\n', 'CELL_DATA ', nel);
-fprintf(fid, 'SCALARS STRESS float 1\n');
-fprintf(fid, 'LOOKUP_TABLE default\n');
-for i=1:nel
-    fprintf(fid, '%f \n',stress(i));
-end 
-fprintf(fid, 'SCALARS STRAIN float 1\n');
-fprintf(fid, 'LOOKUP_TABLE default\n');
-for i=1:nel
-    fprintf(fid, '%f \n',strain(i));
-end 
+% fprintf(fid, '%s %d\n', 'POINT_DATA ', nn);
+% fprintf(fid, 'VECTORS DISP float\n');
+% for i=1:nn
+%     fprintf(fid, '%f %f %f\n',u(1,i),u(2,i),0.0);
+% end 
+% fprintf(fid, '%s %d\n', 'CELL_DATA ', nel);
+% fprintf(fid, 'SCALARS STRESS float 1\n');
+% fprintf(fid, 'LOOKUP_TABLE default\n');
+% for i=1:nel
+%     fprintf(fid, '%f \n',stress(i));
+% end 
+% fprintf(fid, 'SCALARS STRAIN float 1\n');
+% fprintf(fid, 'LOOKUP_TABLE default\n');
+% for i=1:nel
+%     fprintf(fid, '%f \n',strain(i));
+% end 
 % close file
 fclose(fid);
 

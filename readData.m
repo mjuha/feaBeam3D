@@ -249,5 +249,7 @@ MAT = containers.Map(nameKey,propKey);
 fclose(fileID);
 % read mesh
 readMesh(mshfile)
+% prepare data
+prepareData
 
 end

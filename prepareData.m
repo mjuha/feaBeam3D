@@ -3,28 +3,36 @@ function prepareData
 %   Detailed explanation goes here
 
 global ID elements nn nel DBCSet PFCSet coordinates LM u forces
-global stress strain
+% global stress strain
 
 % ====================
 % assembling ID array
 % ====================
-ID = ones(2,nn);
+ID = ones(6,nn);
 [ndispl,~] = size(DBCSet);
 
 % initialize solution vector
-u = zeros(2,nn);
+u = zeros(6,nn);
 
-% prescribed displacements
+% prescribed displacements and rotations
 for i=1:ndispl
     centinel = 0;
-    vx = DBCSet(i,1:2);
+    vx = DBCSet(i,1:3);
     for j=1:nn
-        if norm(coordinates(j,1:2)-vx) < 1.0e-12
-            dof = DBCSet(i,3);
-            ID(dof,j) = 0;
+        if norm(coordinates(j,1:3)-vx) < 1.0e-12
+            dof = DBCSet(i,4);
+            dir = DBCSet(i,5);
+            val = DBCSet(i,6);
+            if dof == 1 % displacements
+                ID(dir,j) = 0;
+                % initialize solution vector
+                u(dir,j) = val;
+            else % rotations
+                ID(3+dir,j) = 0;
+                % initialize solution vector
+                u(3+dir,j) = val;
+            end
             centinel = 1;
-            % initialize solution vector
-            u(dof,j) = DBCSet(i,4);
             break
         end
     end
@@ -35,7 +43,7 @@ end
 % Fill ID array
 count = 0;
 for j=1:nn
-    for i=1:2
+    for i=1:6
         if ( ID(i,j) ~= 0 )
             count = count + 1;
             ID(i,j) = count;
@@ -46,30 +54,32 @@ end
 % =================
 % Generate LM array
 % =================
-LM = zeros(4,nel);
+LM = zeros(12,nel);
 for k=1:nel
-    for j=1:2
-        for i =1:2
-            p = 2*(j-1) + i;
-            LM(p,k) = ID(i,elements(k,j+1));
+    for a=1:2
+        for i=1:6
+            p = 6*(a-1) + i;
+            LM(p,k) = ID(i,elements(k,a+2));
         end
     end
 end
 
 % prescribed forces
 [nforces,~] = size(PFCSet);
-forces = zeros(nforces,3);
+forces = zeros(nforces,4);
 for i=1:nforces
     centinel = 0;
-    vx = PFCSet(i,1:2);
+    vx = PFCSet(i,1:3);
     for j=1:nn
-        if norm(coordinates(j,1:2)-vx) < 1.0e-12
+        if norm(coordinates(j,1:3)-vx) < 1.0e-12
             forces(i,1) = j;
-            dof = PFCSet(i,3);
-            value = PFCSet(i,4);
+            dof = PFCSet(i,4);
+            dir = PFCSet(i,5);
+            value = PFCSet(i,6);
             forces(i,2) = dof;
+            forces(i,3) = dir;
+            forces(i,4) = value;
             centinel = 1;
-            forces(i,3) = value;
             break
         end
     end
@@ -78,8 +88,11 @@ for i=1:nforces
     end
 end
 
-stress = zeros(nel,1);
-strain = zeros(nel,1);
+% compute sparsity
+ComputeSparsity
+
+% stress = zeros(nel,1);
+% strain = zeros(nel,1);
 
 end
 

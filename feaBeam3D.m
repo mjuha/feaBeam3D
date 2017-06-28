@@ -10,7 +10,9 @@
 % Clear variables from workspace
 clearvars
 
-global ID elements nn nel coordinates LM u forces MAT 
+global ID elements nn nel coordinates LM u forces MAT sideLoad 
+global irow icol nzmax
+
 
 % Specify file name
 %filename = '\Users\marioju\Downloads\untitled.msh';
@@ -21,8 +23,8 @@ outfile = readData(filename);
 % % prepare data structure
 % prepareData;
 % 
-% % write original mesh
-% WriteVTKFile(outfile,0)
+% write original mesh
+WriteVTKFile(outfile,0)
 % 
 % % =============================
 % % Dimension the global matrices
