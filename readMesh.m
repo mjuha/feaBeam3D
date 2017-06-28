@@ -5,7 +5,6 @@ global coordinates elements nn nel pointNode MAT BDSet
 % ====================
 % Open msh file
 % ====================
-
 fileID = fopen(mshfile,'r');
 
 % get first three lines and discard them
@@ -44,28 +43,28 @@ fgetl(fileID); % discard this line
 fgetl(fileID); % discard this line
 tline = fgetl(fileID);
 nelT = str2double(tline);
-elementsT = cell(nelT,1);
-% count number of 1-node point
-pointCount = 0;
-% count number of 2-node line
-lineCount = 0;
+elementsT = zeros(nelT,7);
 for i=1:nelT
     tline = fgetl(fileID);
     C = str2double(strsplit(tline));
-    switch C(2)
-        case 15
-            pointCount = pointCount + 1;
-        case 1
-            lineCount = lineCount + 1;
-        otherwise
-            error('Unknown element type. Please check.')
-    end
-    elementsT(i) = {C};
+    elementsT(i,:) = C;
 end
 %close file
 fclose(fileID);
 % post-process data
-nel = lineCount;
+% count the number of elements in the domain (using material set)
+matKeys = cell2mat(keys(MAT));
+nmat = length(matKeys);
+elementCount = 0;
+for i=1:nmat
+    for j=1:nelT
+        if elementsT(j,4) == matKeys(i)
+            elementCount = elementCount + 1;
+        end
+    end
+end
+
+nel = elementCount;
 elements = zeros(nel,3); % store number of physical entity, element tag
 pointNode = zeros(pointCount,2);
 %
