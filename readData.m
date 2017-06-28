@@ -247,8 +247,7 @@ for i=1:nmat
 end
 MAT = containers.Map(nameKey,propKey);
 fclose(fileID);
-
 % read mesh
-%readmesh(mshfile)
+readMesh(mshfile)
 
 end
