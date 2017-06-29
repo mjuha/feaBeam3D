@@ -60,11 +60,15 @@ fprintf(fid, '%s %d\n','CELL_TYPES ', nel);
 for i=1:nel
     fprintf(fid, '%d\n', 3);
 end
-% fprintf(fid, '%s %d\n', 'POINT_DATA ', nn);
-% fprintf(fid, 'VECTORS DISP float\n');
-% for i=1:nn
-%     fprintf(fid, '%f %f %f\n',u(1,i),u(2,i),0.0);
-% end 
+fprintf(fid, '%s %d\n', 'POINT_DATA ', nn);
+fprintf(fid, 'VECTORS DISP float\n');
+for i=1:nn
+    fprintf(fid, '%f %f %f\n',u(1,i),u(2,i),u(2,i));
+end
+fprintf(fid, 'VECTORS ROT float\n');
+for i=1:nn
+    fprintf(fid, '%f %f %f\n',u(4,i),u(5,i),u(6,i));
+end
 % fprintf(fid, '%s %d\n', 'CELL_DATA ', nel);
 % fprintf(fid, 'SCALARS STRESS float 1\n');
 % fprintf(fid, 'LOOKUP_TABLE default\n');

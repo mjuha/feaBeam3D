@@ -10,7 +10,7 @@
 % Clear variables from workspace
 clearvars
 
-global ID elements nn nel coordinates LM u forces MAT sideLoad 
+global ID elements nn nel coordinates LM u forces MAT sideLoad neq
 global irow icol nzmax
 
 
@@ -19,62 +19,65 @@ global irow icol nzmax
 filename = '\\Client\C$\Users\marioju\Documents\Work\exampleBeam.inp';
 % read data
 outfile = readData(filename);
-
-% % prepare data structure
-% prepareData;
 % 
 % write original mesh
 WriteVTKFile(outfile,0)
-% 
-% % =============================
-% % Dimension the global matrices
-% % =============================
-% ndof = max(max(ID));
-% K = zeros(ndof,ndof);
-% F = zeros(ndof,1);
-% 
-% % ===========================
-% % assembling stiffness matrix
-% % ===========================
-% for i=1:nel %loop over elements
-%     xe = coordinates(elements(i,2:3),1:2);
-%     de = u(:,elements(i,2:3));
-%     E = MAT(elements(i,1),1);
-%     A = MAT(elements(i,1),2);
-%     [ke,fe] = weakform(xe,de,E,A);
-%     for j=1:4
-%         i_index = LM(j,i);
-%         if (i_index > 0)
-%             F(i_index) = F(i_index) + fe(j);
-%             for k=1:4
-%                 j_index = LM(k,i);
-%                 if (j_index > 0)
-%                     K(i_index,j_index) = K(i_index,j_index) + ke(j,k);
-%                 end
-%             end
-%         end
-%     end
-% end
-% 
-% % assign point loads
-% for i=1:size(forces,1)
-%   i_index = ID(forces(i,2),forces(i,1));
-%   F(i_index) = F(i_index) + forces(i,3);
-% end
-% 
-% % solve system of equations
-% u_bar = K\F;
-% 
-% for i=1:nn
-%   index = ID(:,i);
-%   for j=1:2
-%     if ( index(j) ~= 0 )
-%       u(j,i) = u_bar( index(j) );
-%     end
-%   end
-% end
+
+% ===========================
+% assembling stiffness matrix
+% ===========================
+K = zeros(1,nzmax);
+F = zeros(neq,1);
+% set counter to zero
+count = 0;
+for i=1:nel
+    xe = coordinates(elements(i,3:4),:);
+    de = u(:,elements(i,3:4));
+    matNum = elements(i,1);
+    dirNum = elements(i,2);
+    [fe,ke] = weakform(i,matNum,dirNum,xe,de);
+    for k=1:12
+        i_index = LM(k,i);
+        if (i_index > 0)
+            F(i_index) = F(i_index) + fe(k);
+            for m=1:12
+                j_index = LM(m,i);
+                if (j_index > 0)
+                    count = count + 1;
+                    K(count) = ke(k,m);
+                end
+            end
+        end
+    end
+end
+% assign point loads
+for i=1:size(forces,1)
+    dof = forces(i,2);
+    dir = forces(i,3);
+    if dof == 1 % displacement
+        i_index = ID(dir,forces(i,1));
+    else % rotation
+        i_index = ID(3+dir,forces(i,1));        
+    end
+    F(i_index) = F(i_index) + forces(i,4);
+end
+fprintf('************************\n')
+fprintf('Solving system of equations\n')
+fprintf('************************\n\n')
+M = sparse(irow,icol,K,neq,neq);
+F = M\F;
+% assign solution
+for r=1:nn
+    for s=1:6
+        i_index = ID(s,r);
+        if (i_index > 0)
+            u(s,r) = F(i_index);
+        end
+    end
+end
+
 % 
 % computeStressStrain
 % 
 % % write solution
-% WriteVTKFile(outfile,1)
+WriteVTKFile(outfile,1)

@@ -2,7 +2,7 @@ function prepareData
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
 
-global ID elements nn nel DBCSet PFCSet coordinates LM u forces
+global ID elements nn nel DBCSet PFCSet coordinates LM u forces neq
 % global stress strain
 
 % ====================
@@ -50,6 +50,9 @@ for j=1:nn
         end
     end
 end
+
+% number of equations
+neq = max(max(ID));
 
 % =================
 % Generate LM array

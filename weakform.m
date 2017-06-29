@@ -1,30 +1,139 @@
-function [ke,fe] = weakform(xe,de,E,A)
+function [fe,ke] = weakform(el,matNum,dirNum,xe,de)
 
-% initialize stiffness matrix and force vector
+global sideLoad MAT elements
+
+% get material and section properties
+prop = cell2mat(MAT(matNum));
+E = prop(1); % Elastic modulus
+G = prop(2); % Shear modulus
+A = prop(3); % cross sectional area
+I1 = prop(4); % moment of iniertia 1
+I2 = prop(5); % moment of iniertia 2
+J = I1 + I2; % polar moment of inertia
+
+% 1 point formula - degree of precision 1
+% r = 0 w = 1
+
+% compute element length
 x1 = xe(1,1);
 x2 = xe(2,1);
 %
 y1 = xe(1,2);
 y2 = xe(2,2);
-
 %
-le = sqrt( (x2-x1)^2 + (y2-y1)^2 );
-l = (x2 - x1)/le;
-m = (y2-y1)/le;
-lm = l*m;
-
+z1 = xe(1,3);
+z2 = xe(2,3);
 %
-ke = (E*A/le)*[l^2 lm -l^2 -lm; lm m^2 -lm -m^2; -l^2 -lm l^2 lm; ...
-    -lm -m^2 lm m^2];
-%
+he = sqrt( (x2-x1)^2 + (y2-y1)^2 + (z2-z1)^2 );
+% jacobian
+jac = 0.5*he;
 
-ue = zeros(4,1);
-for i=1:2 % loop over local nodes
-    ue(2*i-1) = de(1,i);
-    ue(2*i) = de(2,i);
+tol = 1.0e-14;
+if jac < tol
+    error('Negative or zero Jacobian, please check!')
 end
 
-fe = -ke*ue;
+% ------------------
+% bending stiffness
+% ------------------
+dN1 = -1/he;
+dN2 = 1/he;
+% curvature matrix
+Bb = zeros(2,12);
+Bb(1,4) = dN1;
+Bb(1,10) = dN2;
+%
+Bb(2,5) = dN1;
+Bb(2,11) = dN2;
 
+% bending properties matrix
+Db = [E*I1 0;0 E*I2];
+keb = Bb.' * Db * Bb * jac; 
+
+% ------------------
+% shear stiffness
+% ------------------
+% shear deformation matrix
+N1 = 0.5; N2 = 0.5; % one-point quadrature
+Bs = zeros(2,12);
+Bs(1,1) = dN1;
+Bs(1,5) = -N1;
+Bs(1,7) = dN2;
+Bs(1,11) = -N2;
+%
+Bs(2,2) = dN1;
+Bs(2,4) = -N1;
+Bs(2,8) = dN2;
+Bs(2,11) = N2;
+
+% shear properties matrix
+% Using the residual bending flexibity concept
+C1 = 1 / ( 1/(G*A) + he^2/(12*E*I1) );
+C2 = 1 / ( 1/(G*A) + he^2/(12*E*I2) );
+Ds = [C1 0;0 C2];
+
+%
+kes = Bs.' * Ds * Bs * jac; 
+
+% ------------------
+% axial stiffness
+% ------------------
+% axial matrix
+B = zeros(1,12);
+B(1,3) = dN1;
+B(1,9) = dN2;
+
+% bending properties matrix
+kea = B.' * (E*A) * B * jac;
+
+% ------------------
+% torsional stiffness
+% ------------------
+% axial matrix
+Bt = zeros(1,12);
+Bt(1,6) = dN1;
+Bt(1,12) = dN2;
+
+% bending properties matrix
+ket = Bt.' * (G*J) * Bt * jac;
+
+% stiffness matrix
+ke = keb + kes + kea + ket;
+
+ue = zeros(12,1);
+for a=1:2 % loop over local nodes
+    for i = 1:3 % loop over dimension
+        ue(6*a-6+i) = de(i,a);
+        ue(6*a-3+i) = de(i+3,a);
+    end
+end
+
+fe = zeros(12,1);
+if size(sideLoad,1) > 0
+    % compute side load
+    n1 = elements(el,3:4);
+    index = find( (sideLoad(:,1) == n1(1) ) & (sideLoad(:,2) == n1(2) ) );
+    flag = size(index,1);
+    if flag > 0
+        face = sideLoad(index,3);
+        value = sideLoad(index,4);
+        % use one-point quadrature
+        N1 = -0.5;
+        N2 = 0.5;
+        if face == 1
+            fe(1) = N1*value*jac;
+            fe(7) = N2*value*jac;
+        else 
+            fe(2) = N1*value*jac;
+            fe(8) = N2*value*jac;
+        end
+    end
+end
+fe = fe - ke * ue;
+
+% transform local to global
+[ T ] = computeBeamDirection(dirNum,xe);
+ke = T * ke * T.';
+fe = T * fe;
 
 end
