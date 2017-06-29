@@ -48,7 +48,7 @@ Bb(2,11) = dN2;
 
 % bending properties matrix
 Db = [E*I1 0;0 E*I2];
-keb = Bb.' * Db * Bb * jac; 
+keb = Bb.' * Db * Bb * jac;
 
 % ------------------
 % shear stiffness

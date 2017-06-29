@@ -16,7 +16,7 @@ global irow icol nzmax
 
 % Specify file name
 %filename = '\Users\marioju\Downloads\untitled.msh';
-filename = '\\Client\C$\Users\marioju\Documents\Work\exampleBeam.inp';
+filename = '\\Client\C$\Users\marioju\Documents\Work\bicycleExample.inp';
 % read data
 outfile = readData(filename);
 % 

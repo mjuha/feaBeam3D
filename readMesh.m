@@ -88,14 +88,14 @@ end
 % fill-in direction
 dirKeys = cell2mat(keys(BDSet));
 ndir = length(dirKeys);
-elementCount = 0;
 for i=1:ndir
     dkey = dirKeys(i);
     for j=1:nelT
-        dirnum = elementsT(j,4); 
+        n1 = elementsT(j,6:7);
+        dirnum = elementsT(j,4);
         if dirnum == dkey
-            elementCount = elementCount + 1;
-            elements(elementCount,2) = dirnum;
+            index = find( (elements(:,3) == n1(1) ) & (elements(:,4) == n1(2) ) );
+            elements(index,2) = dirnum; %#ok<*FNDSB>
         end
     end
 end

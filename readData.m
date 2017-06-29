@@ -54,8 +54,8 @@ else
         keySet(i) = tmp(2);
         valueSet(i) = str2double(tmp(1)); % physical entity number
     end
+    dirSet = containers.Map(keySet,valueSet);
 end
-dirSet = containers.Map(keySet,valueSet);
 % get material set association
 tline = fgetl(fileID);
 tmp = strsplit(tline);
@@ -71,8 +71,8 @@ else
         keySet(i) = tmp(2); % physical name
         valueSet(i) = str2double(tmp(1)); % physical entity number
     end
+    matSet = containers.Map(keySet,valueSet);
 end
-matSet = containers.Map(keySet,valueSet);
 % get side set association
 tline = fgetl(fileID);
 tmp = strsplit(tline);
@@ -88,8 +88,8 @@ else
         keySet(i) = tmp(2); % physical entity name
         valueSet(i) = str2double(tmp(1)); % physical entity number
     end
+    sideSet = containers.Map(keySet,valueSet);
 end
-sideSet = containers.Map(keySet,valueSet);
 % read Dirichlet BCs (may be displacements or rotations)
 tline = fgetl(fileID);
 tmp = strsplit(tline);
@@ -174,9 +174,8 @@ else
         vec = str2double(tmp(2:4)); % unit vector - direction
         valueSet(i) = {vec};
     end
+    BDSet = containers.Map(nameKey,valueSet);
 end
-BDSet = containers.Map(nameKey,valueSet);
-
 % read distributed load
 tline = fgetl(fileID);
 tmp = strsplit(tline);
@@ -203,8 +202,8 @@ else
         vec = [face value];
         valueSet(i) = {vec};
     end
+    NBCSet = containers.Map(nameKey,valueSet);
 end
-NBCSet = containers.Map(nameKey,valueSet);
 % Read material properties
 % get next line and discard it
 fgetl(fileID);
@@ -244,8 +243,8 @@ for i=1:nmat
     %
     prop1 = [E G A I1 I2];
     propKey(i) = {prop1};
+    MAT = containers.Map(nameKey,propKey);
 end
-MAT = containers.Map(nameKey,propKey);
 fclose(fileID);
 % read mesh
 readMesh(mshfile)

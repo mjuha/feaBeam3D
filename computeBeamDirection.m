@@ -3,8 +3,11 @@ function [ T ] = computeBeamDirection(dirNum,xe)
 global BDSet
 
 % get global direction (orientation) vector
-vec = BDSet(dirNum);
-
+if BDSet(dirNum)
+    vec = cell2mat(BDSet(dirNum));
+else
+    vec = BDSet(dirNum);
+end
 % compute the local unit basis vector along the local z-axis
 x1 = xe(1,1);
 x2 = xe(2,1);
@@ -16,12 +19,15 @@ z1 = xe(1,3);
 z2 = xe(2,3);
 %
 he = sqrt( (x2-x1)^2 + (y2-y1)^2 + (z2-z1)^2 );
-%
+
 epz = (1/he) * [x2 - x1, y2 - y1, z2 - z1];
 
 % compute the local unit basis vector along the local x-axis
 v1 = dot(vec,epz) * epz; % parallel vector along local z-axis
 v2 = vec - v1; % vector along the local x-axis
+if norm(v2) < 1.0e-14
+    error('Check beam direction. It looks like you are specifying a vector parallel to a beam.');
+end
 epx = v2/norm(v2); % unit vector
 
 % compute the local unit basis vector along the local y-axis
