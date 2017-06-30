@@ -101,30 +101,32 @@ for i=1:ndir
 end
 
 % count the number of side loads in the domain (using NBCSet set)
-sideloadKeys = cell2mat(keys(NBCSet));
-nsl = length(sideloadKeys);
-count = 0;
-for i=1:nsl
-    for j=1:nelT
-        if elementsT(j,4) == sideloadKeys(i)
-            count = count + 1;
+if length(NBCSet) > 0
+    sideloadKeys = cell2mat(keys(NBCSet));
+    nsl = length(sideloadKeys);
+    count = 0;
+    for i=1:nsl
+        for j=1:nelT
+            if elementsT(j,4) == sideloadKeys(i)
+                count = count + 1;
+            end
         end
     end
-end
-
-% fill-in sideLoad
-sideLoad = zeros(count,4);
-elementCount = 0;
-for i=1:nsl
-    slkey = sideloadKeys(i);
-    valueSet = cell2mat(NBCSet(slkey));
-    for j=1:nelT
-        slnum = elementsT(j,4); 
-        if slnum == slkey
-            elementCount = elementCount + 1;
-            sideLoad(elementCount,3) = valueSet(1);
-            sideLoad(elementCount,1:2) = elementsT(j,6:7);
-            sideLoad(elementCount,4) = valueSet(2);
+    
+    % fill-in sideLoad
+    sideLoad = zeros(count,4);
+    elementCount = 0;
+    for i=1:nsl
+        slkey = sideloadKeys(i);
+        valueSet = cell2mat(NBCSet(slkey));
+        for j=1:nelT
+            slnum = elementsT(j,4);
+            if slnum == slkey
+                elementCount = elementCount + 1;
+                sideLoad(elementCount,3) = valueSet(1);
+                sideLoad(elementCount,1:2) = elementsT(j,6:7);
+                sideLoad(elementCount,4) = valueSet(2);
+            end
         end
     end
 end
