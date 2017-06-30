@@ -118,14 +118,15 @@ if size(sideLoad,1) > 0
         face = sideLoad(index,3);
         value = sideLoad(index,4);
         % use one-point quadrature
-        N1 = -0.5;
+        N1 = 0.5;
         N2 = 0.5;
+        % we are assuming that distributed load act to the beam
         if face == 1
-            fe(1) = N1*value*jac;
-            fe(7) = N2*value*jac;
+            fe(1) = -N1*value*jac;
+            fe(7) = -N2*value*jac;
         else 
-            fe(2) = N1*value*jac;
-            fe(8) = N2*value*jac;
+            fe(2) = -N1*value*jac;
+            fe(8) = -N2*value*jac;
         end
     end
 end
@@ -135,5 +136,4 @@ fe = fe - ke * ue;
 [ T ] = computeBeamDirection(dirNum,xe);
 ke = T * ke * T.';
 fe = T * fe;
-
 end

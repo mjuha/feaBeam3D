@@ -3,7 +3,7 @@ function [ T ] = computeBeamDirection(dirNum,xe)
 global BDSet
 
 % get global direction (orientation) vector
-if BDSet(dirNum)
+if iscell(BDSet(dirNum))
     vec = cell2mat(BDSet(dirNum));
 else
     vec = BDSet(dirNum);

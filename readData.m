@@ -126,32 +126,36 @@ end
 tline = fgetl(fileID);
 tmp = strsplit(tline);
 npfc = str2double(tmp(3)); % number of point force to read
-PFCSet = zeros(npfc,6);
-for i=1:npfc
-    tline = fgetl(fileID);
-    tmp = strsplit(tline);
-    PFCSet(i,1:3) = str2double(tmp(1:3));
-    dof = sscanf(tmp{4},'%[FM]');
-    dir = sscanf(tmp{5},'%[XYZ]');
-    value = str2double(tmp(6)); % value to assign
-    if strcmp(dof,'F')
-        PFCSet(i,4) = 1;
-    elseif strcmp(dof,'M')
-        PFCSet(i,4) = 2;
-    else
-        error('Loads must be F or M, please check')
-    end
-    if strcmp(dir,'X')
-        PFCSet(i,5) = 1;
-        PFCSet(i,6) = value;
-    elseif strcmp(dir,'Y')
-        PFCSet(i,5) = 2;
-        PFCSet(i,6) = value;
-    elseif strcmp(dir,'Z')
-        PFCSet(i,5) = 3;
-        PFCSet(i,6) = value;
-    else
-        error('Direction must be X, Y or Z, please check')
+if npfc == 0
+    fgetl(fileID); % dummy line
+else
+    PFCSet = zeros(npfc,6);
+    for i=1:npfc
+        tline = fgetl(fileID);
+        tmp = strsplit(tline);
+        PFCSet(i,1:3) = str2double(tmp(1:3));
+        dof = sscanf(tmp{4},'%[FM]');
+        dir = sscanf(tmp{5},'%[XYZ]');
+        value = str2double(tmp(6)); % value to assign
+        if strcmp(dof,'F')
+            PFCSet(i,4) = 1;
+        elseif strcmp(dof,'M')
+            PFCSet(i,4) = 2;
+        else
+            error('Loads must be F or M, please check')
+        end
+        if strcmp(dir,'X')
+            PFCSet(i,5) = 1;
+            PFCSet(i,6) = value;
+        elseif strcmp(dir,'Y')
+            PFCSet(i,5) = 2;
+            PFCSet(i,6) = value;
+        elseif strcmp(dir,'Z')
+            PFCSet(i,5) = 3;
+            PFCSet(i,6) = value;
+        else
+            error('Direction must be X, Y or Z, please check')
+        end
     end
 end
 % read beam direction set

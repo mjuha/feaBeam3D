@@ -10,13 +10,13 @@
 % Clear variables from workspace
 clearvars
 
-global ID elements nn nel coordinates LM u forces MAT sideLoad neq
+global ID elements nn nel coordinates LM u forces neq
 global irow icol nzmax
 
 
 % Specify file name
 %filename = '\Users\marioju\Downloads\untitled.msh';
-filename = '\\Client\C$\Users\marioju\Documents\Work\bicycleExample.inp';
+filename = '\\Client\C$\Users\marioju\Documents\Work\example6_15.inp';
 % read data
 outfile = readData(filename);
 % 
