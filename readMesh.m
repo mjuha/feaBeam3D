@@ -101,7 +101,7 @@ for i=1:ndir
 end
 
 % count the number of side loads in the domain (using NBCSet set)
-if length(NBCSet) > 0
+if ~isempty(NBCSet)
     sideloadKeys = cell2mat(keys(NBCSet));
     nsl = length(sideloadKeys);
     count = 0;
