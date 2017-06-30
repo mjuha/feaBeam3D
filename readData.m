@@ -244,7 +244,7 @@ for i=1:nmat
     tline = fgetl(fileID);
     tmp = strsplit(tline);
     I2 = str2double(tmp(5));
-    %
+    
     prop1 = [E G A I1 I2];
     propKey(i) = {prop1};
     MAT = containers.Map(nameKey,propKey);

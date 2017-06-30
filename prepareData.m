@@ -3,7 +3,7 @@ function prepareData
 %   Detailed explanation goes here
 
 global ID elements nn nel DBCSet PFCSet coordinates LM u forces neq
-% global stress strain
+global axialForce bendingMoment torsionalForce shearForce
 
 % ====================
 % assembling ID array
@@ -94,8 +94,10 @@ end
 % compute sparsity
 ComputeSparsity
 
-% stress = zeros(nel,1);
-% strain = zeros(nel,1);
+axialForce = zeros(nel,1);
+bendingMoment = zeros(nel,2);
+torsionalForce = zeros(nel,1);
+shearForce = zeros(nel,2);
 
 end
 

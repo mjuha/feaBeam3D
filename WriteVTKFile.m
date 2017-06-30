@@ -24,7 +24,8 @@ function WriteVTKFile( outfiledest,istep  )
 % 
 % =====================================================================
 
-global coordinates elements nn nel u stress strain
+global coordinates elements nn nel u
+global axialForce bendingMoment torsionalForce shearForce
 
 if istep < 10
     % file name
@@ -69,17 +70,15 @@ fprintf(fid, 'VECTORS ROT float\n');
 for i=1:nn
     fprintf(fid, '%f %f %f\n',u(4,i),u(5,i),u(6,i));
 end
-% fprintf(fid, '%s %d\n', 'CELL_DATA ', nel);
-% fprintf(fid, 'SCALARS STRESS float 1\n');
-% fprintf(fid, 'LOOKUP_TABLE default\n');
-% for i=1:nel
-%     fprintf(fid, '%f \n',stress(i));
-% end 
-% fprintf(fid, 'SCALARS STRAIN float 1\n');
-% fprintf(fid, 'LOOKUP_TABLE default\n');
-% for i=1:nel
-%     fprintf(fid, '%f \n',strain(i));
-% end 
+fprintf(fid, '%s %d\n', 'CELL_DATA ', nel);
+fprintf(fid, 'VECTORS FORCES float\n');
+for i=1:nel
+    fprintf(fid, '%f %f %f\n',shearForce(i,1),shearForce(i,2),axialForce(i));
+end 
+fprintf(fid, 'VECTORS MOMENTS float\n');
+for i=1:nel
+    fprintf(fid, '%f %f %f\n',bendingMoment(i,1),bendingMoment(i,2),torsionalForce(i));
+end 
 % close file
 fclose(fid);
 

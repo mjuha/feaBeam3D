@@ -16,7 +16,7 @@ global irow icol nzmax
 
 % Specify file name
 %filename = '\Users\marioju\Downloads\untitled.msh';
-filename = '\\Client\C$\Users\marioju\Documents\Work\example6_15.inp';
+filename = '\\Client\C$\Users\marioju\Documents\Work\exampleBeam.inp';
 % read data
 outfile = readData(filename);
 % 
@@ -77,7 +77,7 @@ for r=1:nn
 end
 
 % 
-% computeStressStrain
+computeStressStrain
 % 
 % % write solution
 WriteVTKFile(outfile,1)
