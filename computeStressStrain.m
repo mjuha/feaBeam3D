@@ -27,9 +27,10 @@ for i=1:nel
             ue(6*a-3+j) = de(j+3,a);
         end
     end
-%     % transform local to global
-%     [ T ] = computeBeamDirection(dirNum,xe);
-%     ue = T*ue;
+    %
+    [ T ] = computeBeamDirection(dirNum,xe);
+    % transform global to local
+    ue = T*ue;
     % compute element length
     x1 = xe(1,1);
     x2 = xe(2,1);
