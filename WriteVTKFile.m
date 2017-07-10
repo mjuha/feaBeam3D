@@ -43,14 +43,13 @@ end
 
 % open file
 fid = fopen(fname, 'w');
-
 fprintf(fid, '# vtk DataFile Version 3.8\n');
 fprintf(fid, 'Mesh\n');
 fprintf(fid,'ASCII\n');
 fprintf(fid, 'DATASET UNSTRUCTURED_GRID\n');
 fprintf(fid, '%s %d %s\n','POINTS ', nn, 'float');
 for i=1:nn
-    fprintf(fid, '%f  %f  %f\n', coordinates(i,1), coordinates(i,2), ...
+    fprintf(fid, '%g  %g  %g\n', coordinates(i,1), coordinates(i,2), ...
         coordinates(i,3));
 end
 fprintf(fid, '%s %d %d\n','CELLS ', nel, 3*nel);
@@ -64,20 +63,20 @@ end
 fprintf(fid, '%s %d\n', 'POINT_DATA ', nn);
 fprintf(fid, 'VECTORS DISP float\n');
 for i=1:nn
-    fprintf(fid, '%f %f %f\n',u(1,i),u(2,i),u(2,i));
+    fprintf(fid, '%g %g %g\n',u(1,i),u(2,i),u(3,i));
 end
 fprintf(fid, 'VECTORS ROT float\n');
 for i=1:nn
-    fprintf(fid, '%f %f %f\n',u(4,i),u(5,i),u(6,i));
+    fprintf(fid, '%g %g %g\n',u(4,i),u(5,i),u(6,i));
 end
 fprintf(fid, '%s %d\n', 'CELL_DATA ', nel);
 fprintf(fid, 'VECTORS FORCES float\n');
 for i=1:nel
-    fprintf(fid, '%f %f %f\n',shearForce(i,1),shearForce(i,2),axialForce(i));
+    fprintf(fid, '%g %g %g\n',shearForce(i,1),shearForce(i,2),axialForce(i));
 end 
 fprintf(fid, 'VECTORS MOMENTS float\n');
 for i=1:nel
-    fprintf(fid, '%f %f %f\n',bendingMoment(i,1),bendingMoment(i,2),torsionalForce(i));
+    fprintf(fid, '%g %g %g\n',bendingMoment(i,1),bendingMoment(i,2),torsionalForce(i));
 end 
 % close file
 fclose(fid);
