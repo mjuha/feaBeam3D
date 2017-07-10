@@ -12,7 +12,8 @@ I2 = prop(5); % moment of iniertia 2
 J = I1 + I2; % polar moment of inertia
 
 % 1 point formula - degree of precision 1
-% r = 0 w = 1
+% r = 0 w = 2
+wt = 2; % weight
 
 % compute element length
 x1 = xe(1,1);
@@ -48,7 +49,7 @@ Bb(2,11) = dN2;
 
 % bending properties matrix
 Db = [E*I1 0;0 E*I2];
-keb = Bb.' * Db * Bb * jac;
+keb = Bb.' * Db * Bb * jac * wt;
 
 % ------------------
 % shear stiffness
@@ -64,7 +65,7 @@ Bs(1,11) = -N2;
 Bs(2,2) = dN1;
 Bs(2,4) = -N1;
 Bs(2,8) = dN2;
-Bs(2,11) = N2;
+Bs(2,10) = N2;
 
 % shear properties matrix
 % Using the residual bending flexibity concept
@@ -73,7 +74,7 @@ C2 = 1 / ( 1/(G*A) + he^2/(12*E*I2) );
 Ds = [C1 0;0 C2];
 
 %
-kes = Bs.' * Ds * Bs * jac; 
+kes = Bs.' * Ds * Bs * jac * wt; 
 
 % ------------------
 % axial stiffness
@@ -83,8 +84,8 @@ B = zeros(1,12);
 B(1,3) = dN1;
 B(1,9) = dN2;
 
-% bending properties matrix
-kea = B.' * (E*A) * B * jac;
+% axial properties matrix
+kea = B.' * (E*A) * B * jac * wt;
 
 % ------------------
 % torsional stiffness
@@ -95,7 +96,7 @@ Bt(1,6) = dN1;
 Bt(1,12) = dN2;
 
 % bending properties matrix
-ket = Bt.' * (G*J) * Bt * jac;
+ket = Bt.' * (G*J) * Bt * jac * wt;
 
 % stiffness matrix
 ke = keb + kes + kea + ket;
@@ -122,11 +123,11 @@ if size(sideLoad,1) > 0
         N2 = 0.5;
         % we are assuming that distributed load act to the beam
         if face == 1
-            fe(1) = -N1*value*jac;
-            fe(7) = -N2*value*jac;
+            fe(1) = -N1*value*jac*wt;
+            fe(7) = -N2*value*jac*wt;
         else 
-            fe(2) = -N1*value*jac;
-            fe(8) = -N2*value*jac;
+            fe(2) = -N1*value*jac*wt;
+            fe(8) = -N2*value*jac*wt;
         end
     end
 end
