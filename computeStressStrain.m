@@ -30,7 +30,7 @@ for i=1:nel
     %
     [ T ] = computeBeamDirection(dirNum,xe);
     % transform global to local
-    ue = T*ue;
+    ue = T.'*ue;
     % compute element length
     x1 = xe(1,1);
     x2 = xe(2,1);
