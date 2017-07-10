@@ -57,7 +57,7 @@ for i=1:nel
     %
     kappa = Bb*ue; % curvature (2 x 1)
     bendingMoment(i,1) = E*I1*kappa(1);
-    bendingMoment(i,2) = E*I2*kappa(2);
+    bendingMoment(i,2) = -E*I2*kappa(2);
     %
     % ----------
     % shear
