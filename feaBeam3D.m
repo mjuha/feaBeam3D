@@ -16,10 +16,12 @@ global irow icol nzmax
 
 % Specify file name
 %filename = '\Users\marioju\Downloads\untitled.msh';
-filename = '\\Client\C$\Users\marioju\Documents\Work\exampleBeam.inp';
+filename = '\\Client\C$\Users\marioju\Documents\Work\bathe520.inp';
 % read data
 outfile = readData(filename);
-% 
+%
+printInfo(filename)
+%
 % write original mesh
 WriteVTKFile(outfile,0)
 
@@ -61,9 +63,6 @@ for i=1:size(forces,1)
     end
     F(i_index) = F(i_index) + forces(i,4);
 end
-fprintf('************************\n')
-fprintf('Solving system of equations\n')
-fprintf('************************\n\n')
 M = sparse(irow,icol,K,neq,neq);
 F = M\F;
 % assign solution
