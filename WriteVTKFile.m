@@ -24,7 +24,7 @@ function WriteVTKFile( outfiledest,istep  )
 % 
 % =====================================================================
 
-global coordinates elements nn nel u
+global coordinates elements nn nel u isPipe
 global axialForce bendingMoment torsionalForce shearForce
 
 if istep < 10
@@ -70,14 +70,25 @@ for i=1:nn
     fprintf(fid, '%g %g %g\n',u(4,i),u(5,i),u(6,i));
 end
 fprintf(fid, '%s %d\n', 'CELL_DATA ', nel);
-fprintf(fid, 'VECTORS FORCES float\n');
-for i=1:nel
-    fprintf(fid, '%g %g %g\n',shearForce(i,1),shearForce(i,2),axialForce(i));
-end 
-fprintf(fid, 'VECTORS MOMENTS float\n');
-for i=1:nel
-    fprintf(fid, '%g %g %g\n',bendingMoment(i,1),bendingMoment(i,2),torsionalForce(i));
-end 
+if isPipe %true
+    fprintf(fid, 'VECTORS SHEAR_AXIAL float\n');
+    for i=1:nel
+        fprintf(fid, '%g %g %g\n',shearForce(i,1),shearForce(i,2),axialForce(i));
+    end
+    fprintf(fid, 'VECTORS BENDING_TORSION float\n');
+    for i=1:nel
+        fprintf(fid, '%g %g %g\n',bendingMoment(i,1),bendingMoment(i,2),torsionalForce(i));
+    end
+else
+    fprintf(fid, 'VECTORS FORCES float\n');
+    for i=1:nel
+        fprintf(fid, '%g %g %g\n',shearForce(i,1),shearForce(i,2),axialForce(i));
+    end
+    fprintf(fid, 'VECTORS MOMENTS float\n');
+    for i=1:nel
+        fprintf(fid, '%g %g %g\n',bendingMoment(i,1),bendingMoment(i,2),torsionalForce(i));
+    end
+end
 % close file
 fclose(fid);
 

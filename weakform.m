@@ -1,16 +1,29 @@
 function [fe,ke] = weakform(el,matNum,dirNum,xe,de)
 
-global sideLoad MAT elements
+global sideLoad MAT elements isPipe
 
 % get material and section properties
 prop = cell2mat(MAT(matNum));
 E = prop(1); % Elastic modulus
 G = prop(2); % Shear modulus
-A = prop(3); % cross sectional area
-I1 = prop(4); % moment of iniertia 1
-I2 = prop(5); % moment of iniertia 2
-J = I1 + I2; % polar moment of inertia
-
+if isPipe %true
+    % outer radius
+    ro = prop(3)/2;
+    % wall thickness
+    tk = prop(4);
+    % internal radius
+    ri = ro - tk;
+    %
+    A = pi * ( ro^2 - ri^2 ); % cross sectional area
+    I1 = (pi/4) * ( ro^4 - ri^4 ); % moment of iniertia 1
+    I2 = I1; % moment of iniertia 2
+    J = I1 + I2; % polar moment of inertia
+else % false
+    A = prop(3); % cross sectional area
+    I1 = prop(4); % moment of iniertia 1
+    I2 = prop(5); % moment of iniertia 2
+    J = I1 + I2; % polar moment of inertia
+end
 % 1 point formula - degree of precision 1
 % r = 0 w = 2
 wt = 2; % weight
@@ -74,7 +87,7 @@ C2 = 1 / ( 1/(G*A) + he^2/(12*E*I2) );
 Ds = [C1 0;0 C2];
 
 %
-kes = Bs.' * Ds * Bs * jac * wt; 
+kes = Bs.' * Ds * Bs * jac * wt;
 
 % ------------------
 % axial stiffness
@@ -125,7 +138,7 @@ if size(sideLoad,1) > 0
         if face == 1
             fe(1) = -N1*value*jac*wt;
             fe(7) = -N2*value*jac*wt;
-        else 
+        else
             fe(2) = -N1*value*jac*wt;
             fe(8) = -N2*value*jac*wt;
         end

@@ -1,7 +1,7 @@
 function [outfile] = readData(filename)
 
 % global variables
-global MAT DBCSet PFCSet BDSet NBCSet
+global MAT DBCSet PFCSet BDSet NBCSet isPipe
 
 % Open file
 fileID = fopen(filename,'r');
@@ -38,6 +38,16 @@ if len > 3
     end
 else
     outfile = tmp{3};
+end
+% get flag for pipe element
+tline = fgetl(fileID);
+tmp = strsplit(tline);
+if strcmp(tmp{3},'YES')
+    isPipe = true;
+elseif strcmp(tmp{3},'NO')
+    isPipe = false;
+else
+    error('Is pipe must be YES or NOT, please check!')
 end
 % get direction set association
 tline = fgetl(fileID);
@@ -232,20 +242,33 @@ for i=1:nmat
     tline = fgetl(fileID);
     tmp = strsplit(tline);
     G = str2double(tmp(3));
-    % Area
-    tline = fgetl(fileID);
-    tmp = strsplit(tline);
-    A = str2double(tmp(2));
-    % Moment of inertia 1
-    tline = fgetl(fileID);
-    tmp = strsplit(tline);
-    I1 = str2double(tmp(5));
-    % Moment of inertia 2
-    tline = fgetl(fileID);
-    tmp = strsplit(tline);
-    I2 = str2double(tmp(5));
-    
-    prop1 = [E G A I1 I2];
+    if isPipe % true
+        tline = fgetl(fileID);
+        tmp = strsplit(tline);
+        % pipe outer diameter
+        do = str2double(tmp(4));
+        % wall thickness
+        tline = fgetl(fileID);
+        tmp = strsplit(tline);
+        tk = str2double(tmp(3));
+        %
+        prop1 = [E G do tk];
+    else % false
+        % Area
+        tline = fgetl(fileID);
+        tmp = strsplit(tline);
+        A = str2double(tmp(2));
+        % Moment of inertia 1
+        tline = fgetl(fileID);
+        tmp = strsplit(tline);
+        I1 = str2double(tmp(5));
+        % Moment of inertia 2
+        tline = fgetl(fileID);
+        tmp = strsplit(tline);
+        I2 = str2double(tmp(5));
+        %
+        prop1 = [E G A I1 I2];
+    end
     propKey(i) = {prop1};
     MAT = containers.Map(nameKey,propKey);
 end
