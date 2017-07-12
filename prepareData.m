@@ -3,7 +3,8 @@ function prepareData
 %   Detailed explanation goes here
 
 global ID elements nn nel DBCSet PFCSet coordinates LM u forces neq
-global axialForce bendingMoment torsionalForce shearForce
+global axialForce bendingMoment torsionalForce shearForce isPipe
+global principalStress maxShearStress
 
 % ====================
 % assembling ID array
@@ -94,10 +95,15 @@ end
 % compute sparsity
 ComputeSparsity
 
-axialForce = zeros(nel,1);
-bendingMoment = zeros(nel,2);
-torsionalForce = zeros(nel,1);
-shearForce = zeros(nel,2);
+if isPipe % true
+    principalStress = zeros(nel,2);
+    maxShearStress = zeros(nel,1);
+else % false
+    axialForce = zeros(nel,1);
+    bendingMoment = zeros(nel,2);
+    torsionalForce = zeros(nel,1);
+    shearForce = zeros(nel,2);
+end
 
 end
 
