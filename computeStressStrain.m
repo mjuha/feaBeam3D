@@ -2,6 +2,7 @@ function computeStressStrain
 
 global elements u nel coordinates MAT isPipe
 global axialForce bendingMoment torsionalForce shearForce
+global principalStress maxShearStress
 
 for i=1:nel
     matNum = elements(i,1);
@@ -19,8 +20,8 @@ for i=1:nel
         ri = ro - tk;
         %
         A = pi * ( ro^2 - ri^2 ); % cross sectional area
-        I1 = (pi/4) * ( ro^4 - ri^4 ); % moment of iniertia 1
-        I2 = I1; % moment of iniertia 2
+        I1 = (pi/4) * ( ro^4 - ri^4 ); % moment of inertia 1
+        I2 = I1; % moment of inertia 2
         J = I1 + I2; % polar moment of inertia
     else % false
         A = prop(3); % cross sectional area
@@ -30,7 +31,7 @@ for i=1:nel
     end
     
     % 1 point formula - degree of precision 1
-    % r = 0 w = 1
+    % r = 0 w = 2
     xe = coordinates(elements(i,3:4),:);
     de = u(:,elements(i,3:4));
     %
@@ -71,10 +72,8 @@ for i=1:nel
     %
     kappa = Bb*ue; % curvature (2 x 1)
     if isPipe % true
-        do = 2*ro; % outer diameter
-        S = pi*do^4/32; % section modulus
-        bendingMoment(i,1) = E*I1*kappa(1)/S; % maximum bending stress
-        bendingMoment(i,2) = -E*I2*kappa(2)/S; % maximum bending stress
+        bendingMoment1 = E*kappa(1)*ro; % maximum bending stress
+        bendingMoment2 = -E*kappa(2)*ro; % maximum bending stress
     else
         bendingMoment(i,1) = E*I1*kappa(1);
         bendingMoment(i,2) = -E*I2*kappa(2);
@@ -92,15 +91,15 @@ for i=1:nel
     Bs(1,11) = -N2;
     %
     Bs(2,2) = dN1;
-    Bs(2,4) = -N1;
+    Bs(2,4) = N1;
     Bs(2,8) = dN2;
-    Bs(2,11) = N2;
+    Bs(2,10) = N2;
     %
     shearStrain = Bs*ue; % shear strain (2 x 1)
     if isPipe % true
         C = (ro^2 + 2*ro*ri + ri^2)/(ro^2+ri^2);
-        shearForce(i,1) = (4/3)*G*shearStrain(1)*C;
-        shearForce(i,1) = (4/3)*G*shearStrain(2)*C;
+        shearForce1 = (4/3)*G*shearStrain(1)*C;
+        shearForce2 = (4/3)*G*shearStrain(2)*C;
     else
         shearForce(i,1) = G*A*shearStrain(1);
         shearForce(i,1) = G*A*shearStrain(2);
@@ -116,7 +115,7 @@ for i=1:nel
     %
     axialStrain = B*ue; % axial strain (1 x 1)
     if isPipe % true
-        axialForce(i) = E*axialStrain;
+        axialForce1 = E*axialStrain;
     else
         axialForce(i) = E*A*axialStrain;
     end
@@ -131,11 +130,59 @@ for i=1:nel
     %
     torsionalStrain = Bt*ue; % torsional strain (1 x 1)
     if isPipe % true
-        torsionalForce(i) = G*torsionalStrain*ro;
+        torsionalForce1 = G*torsionalStrain*ro;
     else
         torsionalForce(i) = G*J*torsionalStrain;
     end
-    %
+    % compute principal stress if pipe
+    if isPipe
+        % evaluate four critical points in cross sectional area of the pipe
+        % point A
+        sigma = axialForce1 + bendingMoment1;
+        tau = torsionalForce1 + shearForce1;
+        % principal stress
+        s1 = 0.5*sigma + sqrt( (0.5*sigma)^2 + tau^2 );
+        s2 = 0.5*sigma - sqrt( (0.5*sigma)^2 + tau^2 );
+        tau_max = 0.5*(s1-s2);
+        % point B
+        sigma = axialForce1 + bendingMoment2;
+        tau = torsionalForce1 + shearForce2;
+        % principal stress
+        s1t = 0.5*sigma + sqrt( (0.5*sigma)^2 + tau^2 );
+        s2t = 0.5*sigma - sqrt( (0.5*sigma)^2 + tau^2 );
+        tau_max_t = 0.5*(s1t-s2t);
+        %
+        s1 = max(s1,s1t);
+        s2 = max(s2,s2t);
+        tau_max = max(tau_max,tau_max_t);
+        % point C
+        sigma = axialForce1 - bendingMoment1;
+        tau = -torsionalForce1 - shearForce1;
+        % principal stress
+        s1t = 0.5*sigma + sqrt( (0.5*sigma)^2 + tau^2 );
+        s2t = 0.5*sigma - sqrt( (0.5*sigma)^2 + tau^2 );
+        tau_max_t = 0.5*(s1t-s2t);
+        %
+        s1 = max(s1,s1t);
+        s2 = max(s2,s2t);
+        tau_max = max(tau_max,tau_max_t);
+        % point D
+        sigma = axialForce1 - bendingMoment2;
+        tau = -torsionalForce1 - shearForce2;
+        % principal stress
+        s1t = 0.5*sigma + sqrt( (0.5*sigma)^2 + tau^2 );
+        s2t = 0.5*sigma - sqrt( (0.5*sigma)^2 + tau^2 );
+        tau_max_t = 0.5*(s1t-s2t);
+        %
+        s1 = max(s1,s1t);
+        s2 = max(s2,s2t);
+        tau_max = max(tau_max,tau_max_t);
+        %
+        principalStress(i,1) = s1;
+        principalStress(i,2) = s2;
+        maxShearStress(i) = tau_max;
+    end
+    
 end
 
 end
