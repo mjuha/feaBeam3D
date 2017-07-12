@@ -26,6 +26,7 @@ function WriteVTKFile( outfiledest,istep  )
 
 global coordinates elements nn nel u isPipe
 global axialForce bendingMoment torsionalForce shearForce
+global principalStress maxShearStress
 
 if istep < 10
     % file name
@@ -71,13 +72,14 @@ for i=1:nn
 end
 fprintf(fid, '%s %d\n', 'CELL_DATA ', nel);
 if isPipe %true
-    fprintf(fid, 'VECTORS SHEAR_AXIAL float\n');
+    fprintf(fid, 'VECTORS PRINCIPAL_STRESS float\n');
     for i=1:nel
-        fprintf(fid, '%g %g %g\n',shearForce(i,1),shearForce(i,2),axialForce(i));
+        fprintf(fid, '%g %g %g\n',principalStress(i,1),principalStress(i,2),0.0);
     end
-    fprintf(fid, 'VECTORS BENDING_TORSION float\n');
+    fprintf(fid, 'SCALARS MAX_SHEAR_STRESS float 1\n');
+    fprintf(fid, 'LOOKUP_TABLE default\n');
     for i=1:nel
-        fprintf(fid, '%g %g %g\n',bendingMoment(i,1),bendingMoment(i,2),torsionalForce(i));
+        fprintf(fid, '%g\n',maxShearStress(i));
     end
 else
     fprintf(fid, 'VECTORS FORCES float\n');
