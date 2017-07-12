@@ -76,7 +76,7 @@ Bs(1,7) = dN2;
 Bs(1,11) = -N2;
 %
 Bs(2,2) = dN1;
-Bs(2,4) = -N1;
+Bs(2,4) = N1;
 Bs(2,8) = dN2;
 Bs(2,10) = N2;
 
@@ -121,6 +121,10 @@ for a=1:2 % loop over local nodes
         ue(6*a-3+i) = de(i+3,a);
     end
 end
+% transform local to global
+[ T ] = computeBeamDirection(dirNum,xe);
+% transform global to local
+ue = T.'*ue;
 
 fe = zeros(12,1);
 if size(sideLoad,1) > 0
@@ -145,9 +149,7 @@ if size(sideLoad,1) > 0
     end
 end
 fe = fe - ke * ue;
-
-% transform local to global
-[ T ] = computeBeamDirection(dirNum,xe);
+% tranform global to local
 ke = T * ke * T.';
 fe = T * fe;
 end
