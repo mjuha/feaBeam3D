@@ -4,7 +4,7 @@ function prepareData
 
 global ID elements nn nel DBCSet PFCSet coordinates LM u forces neq
 global axialForce bendingMoment torsionalForce shearForce isPipe
-global principalStress maxShearStress
+global principalStress maxShearStress VonMisesStress
 
 % ====================
 % assembling ID array
@@ -71,24 +71,26 @@ end
 % prescribed forces
 [nforces,~] = size(PFCSet);
 forces = zeros(nforces,4);
-for i=1:nforces
-    centinel = 0;
-    vx = PFCSet(i,1:3);
-    for j=1:nn
-        if norm(coordinates(j,1:3)-vx) < 1.0e-12
-            forces(i,1) = j;
-            dof = PFCSet(i,4);
-            dir = PFCSet(i,5);
-            value = PFCSet(i,6);
-            forces(i,2) = dof;
-            forces(i,3) = dir;
-            forces(i,4) = value;
-            centinel = 1;
-            break
+if nforces > 0
+    for i=1:nforces
+        centinel = 0;
+        vx = PFCSet(i,1:3);
+        for j=1:nn
+            if norm(coordinates(j,1:3)-vx) < 1.0e-12
+                forces(i,1) = j;
+                dof = PFCSet(i,4);
+                dir = PFCSet(i,5);
+                value = PFCSet(i,6);
+                forces(i,2) = dof;
+                forces(i,3) = dir;
+                forces(i,4) = value;
+                centinel = 1;
+                break
+            end
         end
-    end
-    if centinel == 0
-        error('PFC not found, please check!')
+        if centinel == 0
+            error('PFC not found, please check!')
+        end
     end
 end
 
@@ -98,6 +100,7 @@ ComputeSparsity
 if isPipe % true
     principalStress = zeros(nel,2);
     maxShearStress = zeros(nel,1);
+    VonMisesStress = zeros(nel,1);
 else % false
     axialForce = zeros(nel,1);
     bendingMoment = zeros(nel,2);

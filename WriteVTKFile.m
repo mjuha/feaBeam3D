@@ -26,7 +26,7 @@ function WriteVTKFile( outfiledest,istep  )
 
 global coordinates elements nn nel u isPipe
 global axialForce bendingMoment torsionalForce shearForce
-global principalStress maxShearStress
+global principalStress maxShearStress VonMisesStress
 
 if istep < 10
     % file name
@@ -80,6 +80,11 @@ if isPipe %true
     fprintf(fid, 'LOOKUP_TABLE default\n');
     for i=1:nel
         fprintf(fid, '%g\n',maxShearStress(i));
+    end
+    fprintf(fid, 'SCALARS VON_MISES_STRESS float 1\n');
+    fprintf(fid, 'LOOKUP_TABLE default\n');
+    for i=1:nel
+        fprintf(fid, '%g\n',VonMisesStress(i));
     end
 else
     fprintf(fid, 'VECTORS FORCES float\n');

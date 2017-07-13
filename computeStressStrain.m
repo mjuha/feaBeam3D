@@ -2,7 +2,7 @@ function computeStressStrain
 
 global elements u nel coordinates MAT isPipe
 global axialForce bendingMoment torsionalForce shearForce
-global principalStress maxShearStress
+global principalStress maxShearStress VonMisesStress
 
 for i=1:nel
     matNum = elements(i,1);
@@ -181,6 +181,7 @@ for i=1:nel
         principalStress(i,1) = s1;
         principalStress(i,2) = s2;
         maxShearStress(i) = tau_max;
+        VonMisesStress(i) = sqrt( 0.5*( (s1-s2)^2 + s2^2 + s1^2 ) );
     end
     
 end
