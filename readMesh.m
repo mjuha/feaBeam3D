@@ -53,15 +53,7 @@ end
 fclose(fileID);
 % post-process data
 % count the number of elements in the domain (using material set)
-% sometimes MATLAB complains about this. Not sure why. I have specified
-% MAT as a container but for some reason (and not always) it says that
-% MAT is a double (matrix). Therefore I am writing that silly if
-% statement. Need to solve this issue soon.
-if iscell(MAT)
-    matKeys = cell2mat(keys(MAT));
-else
-    error('This is an indication that your input desk is not right. Please check format');
-end
+matKeys = cell2mat(keys(MAT));
 nmat = length(matKeys);
 elementCount = 0;
 for i=1:nmat
