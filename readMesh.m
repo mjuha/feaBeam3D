@@ -57,7 +57,7 @@ fclose(fileID);
 % MAT as a container but for some reason (and not always) it says that
 % MAT is a double (matrix). Therefore I am writing that silly if
 % statement. Need to solve this issue soon.
-if iscell
+if iscell(MAT)
     matKeys = cell2mat(keys(MAT));
 else
     matKeys = MAT;
