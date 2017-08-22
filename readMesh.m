@@ -60,7 +60,7 @@ fclose(fileID);
 if iscell(MAT)
     matKeys = cell2mat(keys(MAT));
 else
-    matKeys = MAT;
+    error('This is an indication that your input desk is not right. Please check format');
 end
 nmat = length(matKeys);
 elementCount = 0;
