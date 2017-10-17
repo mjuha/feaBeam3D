@@ -10,7 +10,7 @@ filename = '\\Client\C$\Users\marioju\Documents\feaBeam3D\examples\VM12\exampleP
 feaBeam3D(filename,normDisp,normRot,tol)
 clear global
 
-%% Test 1: VM2
+%% Test 2: VM2
 normDisp = 0.162442;
 normRot = 3.46945e-19;
 tol = 1.0e-5;
