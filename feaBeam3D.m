@@ -1,3 +1,4 @@
+function feaBeam3D(filename,varargin)
 % feaBeam3D.m
 % This is the main file that implement a 3D linear beam elements
 %
@@ -7,16 +8,22 @@
 % Universidad de La Sabana
 % Chia -  Colombia
 %
-% Clear variables from workspace
-clearvars
-
 global ID elements nn nel coordinates LM u forces neq
 global irow icol nzmax
 
 
 % Specify file name
-%filename = '\Users\marioju\Downloads\untitled.msh';
-filename = '\\Client\C$\Users\marioju\Documents\Work\bathe520.inp';
+%filename = '\Users\marioju\Documents\Work\VM12\examplePipe.inp';
+%filename = '\\Client\C$\Users\marioju\Documents\Work\VM12\examplePipe.inp';
+
+% check if user have specified rregression tests
+if nargin > 1
+    % extract the regression values
+    normDisp = varargin{1};
+    normRot = varargin{2};
+    regressionTol = varargin{3};
+end
+
 % read data
 outfile = readData(filename);
 %
@@ -59,7 +66,7 @@ for i=1:size(forces,1)
     if dof == 1 % displacement
         i_index = ID(dir,forces(i,1));
     else % rotation
-        i_index = ID(3+dir,forces(i,1));        
+        i_index = ID(3+dir,forces(i,1));
     end
     F(i_index) = F(i_index) + forces(i,4);
 end
@@ -75,8 +82,15 @@ for r=1:nn
     end
 end
 
-% 
+%
 computeStressStrain
-% 
+%
 % % write solution
 WriteVTKFile(outfile,1)
+
+% do regression test
+if nargin > 1
+    regressionTests(normDisp,normRot,regressionTol)
+end
+
+end

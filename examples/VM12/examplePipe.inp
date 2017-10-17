@@ -1,0 +1,35 @@
+PROBLEM NAME: Beam 2D
+
+DISCRETIZATION
+Mesh Input File: \\Client\C$\Users\marioju\Documents\Work\VM12\vm12.msh
+Output Filename: \\Client\C$\Users\marioju\Documents\Work\VM12\
+Pipe element: YES
+Direction Set Association: 1
+2 dir1
+Material Set Association: 1
+1 mat1
+Side Set Association: 0
+
+Dirichlet BCs: 6
+0.0 0.0 0.0 D X 0.0
+0.0 0.0 0.0 D Y 0.0
+0.0 0.0 0.0 D Z 0.0
+0.0 0.0 0.0 R X 0.0
+0.0 0.0 0.0 R Y 0.0
+0.0 0.0 0.0 R Z 0.0
+Point Load: 2
+0.0 300.0 0.0 F X 250.0
+0.0 300.0 0.0 M Y 9000.0
+Beam Direction: 1
+dir1 1 0 0
+Distributed load: 0
+DL on SS load1 for face 1 : 40e3
+
+MATERIAL PROPERTIES 1
+Name: mat1
+Elastic modulus: 30e6
+Shear modulus: 10.8e6
+Pipe outer diameter: 4.67017
+Wall Thickness: 2.33508
+
+

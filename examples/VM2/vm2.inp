@@ -1,0 +1,35 @@
+PROBLEM NAME: VM2
+
+DISCRETIZATION
+Mesh Input File: \\Client\C$\Users\marioju\Documents\Work\VM2\vm2.msh
+Output Filename: \\Client\C$\Users\marioju\Documents\Work\VM2\
+Pipe element: NO
+Direction Set Association: 1
+2 dir1
+Material Set Association: 1
+1 mat1
+Side Set Association: 1
+3 load1
+Dirichlet BCs: 6
+120.0 0.0 0.0 D X 0.0
+120.0 0.0 0.0 D Y 0.0
+120.0 0.0 0.0 D Z 0.0
+360.0 0.0 0.0 D X 0.0
+360.0 0.0 0.0 D Y 0.0
+360.0 0.0 0.0 D Z 0.0
+Point Load: 0
+
+Beam Direction: 1
+dir1 0 1 0
+Distributed load: 1
+DL on SS load1 for face 1 : 833.333333
+
+MATERIAL PROPERTIES 1
+Name: mat1
+Elastic modulus: 30e6
+Shear modulus: 11e6
+Area: 50.65
+Moment of Inertia 1: 7892.0
+Moment of Inertia 2: 7892.0
+
+
