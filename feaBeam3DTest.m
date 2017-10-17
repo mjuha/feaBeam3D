@@ -6,7 +6,7 @@
 normDisp = 1.21804;
 normRot = 0.0109493;
 tol = 1.0e-5;
-filename = '\\Client\C$\Users\marioju\Documents\feaBeam3D\examples\VM12\examplePipe.inp';
+filename = '\\Client\C$\Users\marioju\Documents\Work\feaBeam3D\examples\VM12\examplePipe.inp';
 feaBeam3D(filename,normDisp,normRot,tol)
 clear global
 
@@ -14,6 +14,6 @@ clear global
 normDisp = 0.162442;
 normRot = 3.46945e-19;
 tol = 1.0e-5;
-filename = '\\Client\C$\Users\marioju\Documents\feaBeam3D\examples\VM2\vm2.inp';
+filename = '\\Client\C$\Users\marioju\Documents\Work\feaBeam3D\examples\VM2\vm2.inp';
 feaBeam3D(filename,normDisp,normRot,tol)
 clear global
