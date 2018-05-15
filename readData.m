@@ -242,6 +242,14 @@ for i=1:nmat
     tline = fgetl(fileID);
     tmp = strsplit(tline);
     G = str2double(tmp(3));
+    % Coef. Thermal expansion
+    tline = fgetl(fileID);
+    tmp = strsplit(tline);
+    alpha = str2double(tmp(3));
+    % Temperature change
+    tline = fgetl(fileID);
+    tmp = strsplit(tline);
+    dT = str2double(tmp(3));
     if isPipe % true
         tline = fgetl(fileID);
         tmp = strsplit(tline);
@@ -252,7 +260,7 @@ for i=1:nmat
         tmp = strsplit(tline);
         tk = str2double(tmp(3));
         %
-        prop1 = [E G do tk];
+        prop1 = [E G do tk alpha dT];
     else % false
         % Area
         tline = fgetl(fileID);
@@ -267,7 +275,7 @@ for i=1:nmat
         tmp = strsplit(tline);
         I2 = str2double(tmp(5));
         %
-        prop1 = [E G A I1 I2];
+        prop1 = [E G A I1 I2 alpha dT];
     end
     propKey(i) = {prop1};
     MAT = containers.Map(nameKey,propKey);

@@ -3,10 +3,16 @@ function [fe,ke] = weakform(el,matNum,dirNum,xe,de)
 global sideLoad MAT elements isPipe
 
 % get material and section properties
-prop = cell2mat(MAT(matNum));
+if iscell(MAT(matNum))
+    prop = cell2mat(MAT(matNum));
+else
+    prop = MAT(matNum);
+end
 E = prop(1); % Elastic modulus
 G = prop(2); % Shear modulus
 if isPipe %true
+    alpha = prop(5); % Coef. thermal expansion
+    dT = prop(6); % temperature change
     % outer radius
     ro = prop(3)/2;
     % wall thickness
@@ -23,6 +29,8 @@ else % false
     I1 = prop(4); % moment of iniertia 1
     I2 = prop(5); % moment of iniertia 2
     J = I1 + I2; % polar moment of inertia
+    alpha = prop(6); % Coef. thermal expansion
+    dT = prop(7); % temperature change
 end
 % 1 point formula - degree of precision 1
 % r = 0 w = 2
@@ -100,10 +108,13 @@ B(1,9) = dN2;
 % axial properties matrix
 kea = B.' * (E*A) * B * jac * wt;
 
+% load due to temperature change
+feT = B.' * (E * A * alpha * dT ) * jac * wt;
+
 % ------------------
 % torsional stiffness
 % ------------------
-% axial matrix
+% torsional matrix
 Bt = zeros(1,12);
 Bt(1,6) = dN1;
 Bt(1,12) = dN2;
@@ -148,7 +159,7 @@ if size(sideLoad,1) > 0
         end
     end
 end
-fe = fe - ke * ue;
+fe = fe + feT - ke * ue;
 % tranform global to local
 ke = T * ke * T.';
 fe = T * fe;

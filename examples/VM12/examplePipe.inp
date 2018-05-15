@@ -29,6 +29,8 @@ MATERIAL PROPERTIES 1
 Name: mat1
 Elastic modulus: 30e6
 Shear modulus: 10.8e6
+Thermal Expansion: 6.6e-6
+Delta Temperature: 0.0
 Pipe outer diameter: 4.67017
 Wall Thickness: 2.33508
 

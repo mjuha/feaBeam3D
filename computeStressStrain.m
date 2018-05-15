@@ -8,10 +8,16 @@ for i=1:nel
     matNum = elements(i,1);
     dirNum = elements(i,2);
     % get material and section properties
-    prop = cell2mat(MAT(matNum));
+    if iscell(MAT(matNum))
+        prop = cell2mat(MAT(matNum));
+    else
+        prop = MAT(matNum);
+    end
     E = prop(1); % Elastic modulus
     G = prop(2); % Shear modulus
     if isPipe %true
+        alpha = prop(5); % Coef. thermal expansion
+        dT = prop(6); % temperature change
         % outer radius
         ro = prop(3)/2;
         % wall thickness
@@ -28,6 +34,8 @@ for i=1:nel
         I1 = prop(4); % moment of iniertia 1
         I2 = prop(5); % moment of iniertia 2
         J = I1 + I2; % polar moment of inertia
+        alpha = prop(6); % Coef. thermal expansion
+        dT = prop(7); % temperature change
     end
     
     % 1 point formula - degree of precision 1
@@ -113,7 +121,7 @@ for i=1:nel
     B(1,3) = dN1;
     B(1,9) = dN2;
     %
-    axialStrain = B*ue; % axial strain (1 x 1)
+    axialStrain = B*ue - alpha * dT; % axial strain (1 x 1)
     if isPipe % true
         axialForce1 = E*axialStrain;
     else

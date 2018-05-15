@@ -28,6 +28,8 @@ MATERIAL PROPERTIES 1
 Name: mat1
 Elastic modulus: 30e6
 Shear modulus: 11e6
+Thermal Expansion: 6.6e-6
+Delta Temperature: 0.0
 Area: 50.65
 Moment of Inertia 1: 7892.0
 Moment of Inertia 2: 7892.0
